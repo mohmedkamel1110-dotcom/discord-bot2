@@ -1,7 +1,7 @@
 const { getDB } = require('./database');
 const { EmbedBuilder } = require("discord.js");
 
-// 🔥 نظام XP
+// 🔥 نظم XP
 async function handleXP(message) {
     const db = getDB();
     if (!db) return;
