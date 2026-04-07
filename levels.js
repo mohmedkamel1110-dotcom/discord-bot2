@@ -17,7 +17,7 @@ async function handleXP(message) {
     }
 
     // ✅ التعديل هنا فقط
-    user.xp += 30;
+    user.xp += 80;
 
     const neededXP = user.level * 100;
 
