@@ -1,6 +1,6 @@
 const { getDB } = require('./database');
 const { AttachmentBuilder } = require("discord.js");
-const Canvas = require("canvas");
+const { createCanvas, loadImage } = require("@napi-rs/canvas");
 
 // 🔥 نظم XP
 async function handleXP(message) {
@@ -17,7 +17,7 @@ async function handleXP(message) {
         await users.insertOne(user);
     }
 
-    // ✅ 80 XP
+    // ✅ 80 XP لكل رسالة
     user.xp += 80;
 
     const neededXP = user.level * 100;
@@ -42,7 +42,7 @@ async function getRank(users, userId) {
     return index === -1 ? "?" : index + 1;
 }
 
-// 🎨 LEVEL CARD
+// 🎨 عرض الليفل (Canvas احترافي فقط)
 async function getLevel(message) {
     const db = getDB();
     if (!db) return;
@@ -61,7 +61,7 @@ async function getLevel(message) {
     const neededXP = level * 100;
     const rank = await getRank(users, userId);
 
-    const canvas = Canvas.createCanvas(900, 300);
+    const canvas = createCanvas(900, 300);
     const ctx = canvas.getContext("2d");
 
     // 🖤 خلفية Gradient
@@ -72,7 +72,7 @@ async function getLevel(message) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // 👤 صورة دائرية
-    const avatar = await Canvas.loadImage(
+    const avatar = await loadImage(
         message.author.displayAvatarURL({ extension: "png" })
     );
 
@@ -96,7 +96,7 @@ async function getLevel(message) {
     // 👑 Rank
     ctx.fillText(`Rank: #${rank}`, 250, 190);
 
-    // 🔥 XP BAR (احترافي)
+    // 🔥 XP BAR
     const barX = 250;
     const barY = 220;
     const barWidth = 500;
@@ -121,8 +121,8 @@ async function getLevel(message) {
     ctx.font = "20px sans-serif";
     ctx.fillText(`${xp} / ${neededXP}`, barX, barY - 10);
 
-    // 📦 إرسال
-    const attachment = new AttachmentBuilder(canvas.toBuffer(), {
+    // 📦 إرسال الصورة
+    const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), {
         name: "level.png"
     });
 
