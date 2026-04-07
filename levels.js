@@ -16,8 +16,8 @@ async function handleXP(message) {
         await users.insertOne(user);
     }
 
-    // ✅ التعديل هنا فقط
-    user.xp += 30;
+    // ✅ تم التعديل: 80 XP لكل رسالة
+    user.xp += 80;
 
     const neededXP = user.level * 100;
 
