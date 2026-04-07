@@ -1,6 +1,13 @@
 const { getDB } = require('./database');
 const { AttachmentBuilder } = require("discord.js");
-const { createCanvas, loadImage } = require("@napi-rs/canvas");
+const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
+const path = require("path");
+
+// 🔥 تسجيل الفونت (حل المشكلة نهائي)
+GlobalFonts.registerFromPath(
+    path.join(__dirname, "fonts", "Cairo-Regular.ttf"),
+    "Cairo"
+);
 
 // 🔥 نظم XP
 async function handleXP(message) {
@@ -80,16 +87,16 @@ async function getLevel(message) {
     ctx.drawImage(avatar, 40, 70, 160, 160);
     ctx.restore();
 
-    // 🛠️ حل مشكلة النص
+    // 🎨 النص
     ctx.fillStyle = "#ffffff";
     ctx.textBaseline = "top";
 
     // 🧠 الاسم
-    ctx.font = "bold 32px Arial";
+    ctx.font = "bold 32px Cairo";
     ctx.fillText(message.author.username, 250, 90);
 
     // ⭐ Level
-    ctx.font = "24px Arial";
+    ctx.font = "24px Cairo";
     ctx.fillText(`Level: ${level}`, 250, 140);
 
     // 👑 Rank
@@ -114,7 +121,7 @@ async function getLevel(message) {
     ctx.fillRect(barX, barY, progress, barHeight);
 
     // نص XP
-    ctx.font = "18px Arial";
+    ctx.font = "18px Cairo";
     ctx.fillText(`${xp} / ${neededXP}`, barX, barY - 5);
 
     // 📦 إرسال الصورة
