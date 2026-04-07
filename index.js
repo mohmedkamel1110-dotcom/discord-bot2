@@ -4,8 +4,6 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { startMessages } = require('./messages');
 const { handleXP, getLevel } = require('./levels');
 const { getDB, connectDB } = require('./database');
-
-// 🔥 ticket system
 const { handleTicketInteraction, sendPanel } = require("./ticket");
 
 const express = require('express');
@@ -33,6 +31,9 @@ const client = new Client({
 const TOKEN = process.env.TOKEN;
 const OWNER_ID = "1215378499393552526";
 
+// 🔥 Anti Duplicate System
+const cooldown = new Set();
+
 client.once('ready', async () => {
     console.log(`🔥 Logged in as ${client.user.tag}`);
 
@@ -48,6 +49,11 @@ client.once('ready', async () => {
 client.on('messageCreate', async (message) => {
     try {
         if (!message || message.author.bot) return;
+
+        // 🔥 يمنع التكرار
+        if (cooldown.has(message.id)) return;
+        cooldown.add(message.id);
+        setTimeout(() => cooldown.delete(message.id), 3000);
 
         const db = getDB();
         if (!db) return;
@@ -88,14 +94,28 @@ client.on('messageCreate', async (message) => {
                 desc += `${medal} #${i + 1} - <@${u.userId}> (Level ${u.level})\n`;
             }
 
-            return message.reply({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor("#FFD700")
-                        .setTitle("🏆 Best 5 Players")
-                        .setDescription(desc)
-                ]
-            });
+            let topUser = null;
+            let avatar = null;
+            let title = "🏆 Best 5 Players";
+
+            try {
+                topUser = await client.users.fetch(topUsers[0].userId);
+                avatar = topUser.displayAvatarURL({ dynamic: true, size: 1024 });
+                title = `👑 ${topUser.username} | Top Player`;
+            } catch {}
+
+            const embed = new EmbedBuilder()
+                .setColor("#FFD700")
+                .setTitle(title)
+                .setDescription(desc)
+                .setFooter({ text: "Devil Bot 😈" });
+
+            if (avatar) {
+                embed.setThumbnail(avatar);
+                embed.setImage(avatar);
+            }
+
+            return message.reply({ embeds: [embed] });
         }
 
         // ================== 💀 OWNER ONLY ==================
@@ -201,6 +221,7 @@ client.on('messageCreate', async (message) => {
         }
 
         // ================== 👑 مستوي ==================
+
         if (command === "!مستوي") {
 
             if (!mentionedUser) return message.reply("❌ منشن الشخص");
