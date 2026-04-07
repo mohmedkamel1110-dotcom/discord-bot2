@@ -92,6 +92,10 @@ async function getLevel(message) {
     // 👑 Rank
     ctx.fillText(`Rank: #${rank}`, 250, 180);
 
+    // 🔢 نسبة XP
+    const percent = Math.floor((xp / neededXP) * 100);
+    ctx.fillText(`${percent}%`, 750, 180);
+
     // 🔥 XP BAR
     const barX = 250;
     const barY = 220;
@@ -102,8 +106,8 @@ async function getLevel(message) {
     ctx.fillStyle = "#444";
     ctx.fillRect(barX, barY, barWidth, barHeight);
 
-    // التقدم
-    const progress = (xp / neededXP) * barWidth;
+    // التقدم (مع حد أدنى عشان يبان)
+    const progress = Math.max(10, (xp / neededXP) * barWidth);
 
     ctx.fillStyle = "#00ffcc";
     ctx.fillRect(barX, barY, progress, barHeight);
