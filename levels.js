@@ -80,13 +80,16 @@ async function getLevel(message) {
     ctx.drawImage(avatar, 40, 70, 160, 160);
     ctx.restore();
 
-    // 🧠 الاسم
+    // 🛠️ حل مشكلة النص
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 32px sans-serif";
+    ctx.textBaseline = "top";
+
+    // 🧠 الاسم
+    ctx.font = "bold 32px Arial";
     ctx.fillText(message.author.username, 250, 90);
 
     // ⭐ Level
-    ctx.font = "24px sans-serif";
+    ctx.font = "24px Arial";
     ctx.fillText(`Level: ${level}`, 250, 140);
 
     // 👑 Rank
@@ -102,19 +105,16 @@ async function getLevel(message) {
     const barWidth = 500;
     const barHeight = 25;
 
-    // خلفية البار
     ctx.fillStyle = "#444";
     ctx.fillRect(barX, barY, barWidth, barHeight);
 
-    // التقدم (مع حد أدنى عشان يبان)
     const progress = Math.max(10, (xp / neededXP) * barWidth);
 
     ctx.fillStyle = "#00ffcc";
     ctx.fillRect(barX, barY, progress, barHeight);
 
     // نص XP
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "18px sans-serif";
+    ctx.font = "18px Arial";
     ctx.fillText(`${xp} / ${neededXP}`, barX, barY - 5);
 
     // 📦 إرسال الصورة
