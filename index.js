@@ -31,10 +31,14 @@ const client = new Client({
 const TOKEN = process.env.TOKEN;
 const OWNER_ID = "1215378499393552526";
 
-// 🔥 Anti Duplicate System
+// 🔥 Anti Duplicate System (محسن)
 const cooldown = new Set();
+let botReady = false;
 
 client.once('ready', async () => {
+    if (botReady) return; // 🛡️ يمنع التشغيل مرتين
+    botReady = true;
+
     console.log(`🔥 Logged in as ${client.user.tag}`);
 
     try {
@@ -50,10 +54,12 @@ client.on('messageCreate', async (message) => {
     try {
         if (!message || message.author.bot) return;
 
-        // 🔥 يمنع التكرار
-        if (cooldown.has(message.id)) return;
-        cooldown.add(message.id);
-        setTimeout(() => cooldown.delete(message.id), 3000);
+        // 🛡️ منع التكرار القوي
+        const key = `${message.author.id}-${message.content}`;
+        if (cooldown.has(key)) return;
+
+        cooldown.add(key);
+        setTimeout(() => cooldown.delete(key), 3000);
 
         const db = getDB();
         if (!db) return;
