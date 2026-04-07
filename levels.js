@@ -1,13 +1,6 @@
 const { getDB } = require('./database');
 const { AttachmentBuilder } = require("discord.js");
-const { createCanvas, loadImage, GlobalFonts } = require("@napi-rs/canvas");
-const path = require("path");
-
-// 🔥 تسجيل الفونت (حل المشكلة نهائي)
-GlobalFonts.registerFromPath(
-    path.join(__dirname, "fonts", "Cairo-Regular.ttf"),
-    "Cairo"
-);
+const { createCanvas, loadImage } = require("@napi-rs/canvas");
 
 // 🔥 نظم XP
 async function handleXP(message) {
@@ -24,6 +17,7 @@ async function handleXP(message) {
         await users.insertOne(user);
     }
 
+    // ✅ 80 XP لكل رسالة
     user.xp += 80;
 
     const neededXP = user.level * 100;
@@ -48,7 +42,7 @@ async function getRank(users, userId) {
     return index === -1 ? "?" : index + 1;
 }
 
-// 🎨 عرض الليفل
+// 🎨 عرض الليفل (Canvas احترافي فقط)
 async function getLevel(message) {
     const db = getDB();
     if (!db) return;
@@ -70,8 +64,11 @@ async function getLevel(message) {
     const canvas = createCanvas(900, 300);
     const ctx = canvas.getContext("2d");
 
-    // 🖤 خلفية
-    ctx.fillStyle = "#1e1e2f";
+    // 🖤 خلفية Gradient
+    const gradient = ctx.createLinearGradient(0, 0, 900, 0);
+    gradient.addColorStop(0, "#0f2027");
+    gradient.addColorStop(1, "#2c5364");
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // 👤 صورة دائرية
@@ -81,48 +78,48 @@ async function getLevel(message) {
 
     ctx.save();
     ctx.beginPath();
-    ctx.arc(120, 150, 80, 0, Math.PI * 2);
+    ctx.arc(120, 150, 80, 0, Math.PI * 2, true);
     ctx.closePath();
     ctx.clip();
     ctx.drawImage(avatar, 40, 70, 160, 160);
     ctx.restore();
 
-    // 🎨 النص
-    ctx.fillStyle = "#ffffff";
-    ctx.textBaseline = "top";
-
     // 🧠 الاسم
-    ctx.font = "bold 32px Cairo";
-    ctx.fillText(message.author.username, 250, 90);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 32px sans-serif";
+    ctx.fillText(message.author.username, 250, 100);
 
     // ⭐ Level
-    ctx.font = "24px Cairo";
-    ctx.fillText(`Level: ${level}`, 250, 140);
+    ctx.font = "24px sans-serif";
+    ctx.fillText(`Level: ${level}`, 250, 150);
 
     // 👑 Rank
-    ctx.fillText(`Rank: #${rank}`, 250, 180);
-
-    // 🔢 نسبة XP
-    const percent = Math.floor((xp / neededXP) * 100);
-    ctx.fillText(`${percent}%`, 750, 180);
+    ctx.fillText(`Rank: #${rank}`, 250, 190);
 
     // 🔥 XP BAR
     const barX = 250;
     const barY = 220;
     const barWidth = 500;
-    const barHeight = 25;
+    const barHeight = 30;
 
-    ctx.fillStyle = "#444";
+    // خلفية البار
+    ctx.fillStyle = "#555";
     ctx.fillRect(barX, barY, barWidth, barHeight);
 
-    const progress = Math.max(10, (xp / neededXP) * barWidth);
+    // التقدم
+    const progress = (xp / neededXP) * barWidth;
 
-    ctx.fillStyle = "#00ffcc";
+    const barGradient = ctx.createLinearGradient(barX, 0, barX + barWidth, 0);
+    barGradient.addColorStop(0, "#00ffcc");
+    barGradient.addColorStop(1, "#00bfff");
+
+    ctx.fillStyle = barGradient;
     ctx.fillRect(barX, barY, progress, barHeight);
 
     // نص XP
-    ctx.font = "18px Cairo";
-    ctx.fillText(`${xp} / ${neededXP}`, barX, barY - 5);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "20px sans-serif";
+    ctx.fillText(`${xp} / ${neededXP}`, barX, barY - 10);
 
     // 📦 إرسال الصورة
     const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), {
