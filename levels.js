@@ -17,7 +17,6 @@ async function handleXP(message) {
         await users.insertOne(user);
     }
 
-    // ✅ 80 XP لكل رسالة
     user.xp += 80;
 
     const neededXP = user.level * 100;
@@ -42,7 +41,7 @@ async function getRank(users, userId) {
     return index === -1 ? "?" : index + 1;
 }
 
-// 🎨 عرض الليفل (Canvas احترافي فقط)
+// 🎨 عرض الليفل
 async function getLevel(message) {
     const db = getDB();
     if (!db) return;
@@ -64,11 +63,8 @@ async function getLevel(message) {
     const canvas = createCanvas(900, 300);
     const ctx = canvas.getContext("2d");
 
-    // 🖤 خلفية Gradient
-    const gradient = ctx.createLinearGradient(0, 0, 900, 0);
-    gradient.addColorStop(0, "#0f2027");
-    gradient.addColorStop(1, "#2c5364");
-    ctx.fillStyle = gradient;
+    // 🖤 خلفية
+    ctx.fillStyle = "#1e1e2f";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // 👤 صورة دائرية
@@ -78,7 +74,7 @@ async function getLevel(message) {
 
     ctx.save();
     ctx.beginPath();
-    ctx.arc(120, 150, 80, 0, Math.PI * 2, true);
+    ctx.arc(120, 150, 80, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
     ctx.drawImage(avatar, 40, 70, 160, 160);
@@ -87,39 +83,35 @@ async function getLevel(message) {
     // 🧠 الاسم
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 32px sans-serif";
-    ctx.fillText(message.author.username, 250, 100);
+    ctx.fillText(message.author.username, 250, 90);
 
     // ⭐ Level
     ctx.font = "24px sans-serif";
-    ctx.fillText(`Level: ${level}`, 250, 150);
+    ctx.fillText(`Level: ${level}`, 250, 140);
 
     // 👑 Rank
-    ctx.fillText(`Rank: #${rank}`, 250, 190);
+    ctx.fillText(`Rank: #${rank}`, 250, 180);
 
     // 🔥 XP BAR
     const barX = 250;
     const barY = 220;
     const barWidth = 500;
-    const barHeight = 30;
+    const barHeight = 25;
 
     // خلفية البار
-    ctx.fillStyle = "#555";
+    ctx.fillStyle = "#444";
     ctx.fillRect(barX, barY, barWidth, barHeight);
 
     // التقدم
     const progress = (xp / neededXP) * barWidth;
 
-    const barGradient = ctx.createLinearGradient(barX, 0, barX + barWidth, 0);
-    barGradient.addColorStop(0, "#00ffcc");
-    barGradient.addColorStop(1, "#00bfff");
-
-    ctx.fillStyle = barGradient;
+    ctx.fillStyle = "#00ffcc";
     ctx.fillRect(barX, barY, progress, barHeight);
 
     // نص XP
     ctx.fillStyle = "#ffffff";
-    ctx.font = "20px sans-serif";
-    ctx.fillText(`${xp} / ${neededXP}`, barX, barY - 10);
+    ctx.font = "18px sans-serif";
+    ctx.fillText(`${xp} / ${neededXP}`, barX, barY - 5);
 
     // 📦 إرسال الصورة
     const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), {
