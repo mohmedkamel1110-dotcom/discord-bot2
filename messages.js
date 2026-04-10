@@ -33,7 +33,7 @@ function startMessages(client) {
         }
 
         // 🤲 صلاة الفجر (4:32)
-        if (hours === 4 && minutes === 12 && lastSentDuaa !== today) {
+        if (hours === 4 && minutes === 6 && lastSentDuaa !== today) {
             channel.send(`صلاة الفجر 🩶
 
 صلاة الفجر لو صاحي اوعي تكسل 💞
