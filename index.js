@@ -87,16 +87,12 @@ client.on('messageCreate', async (message) => {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-    model: "meta-llama/llama-3-8b-instruct",
-    temperature: 0.8,
-    messages: [
-        {
-            role: "system",
-            content: `...`
-        },
-        {
-            role: "user",
-            content: `
+                        model: "meta-llama/llama-3-8b-instruct",
+                        temperature: 0.8,
+                        messages: [
+                            {
+                                role: "system",
+                                content: `
 انت Devil Bot 😈
 
 اتكلم بالمصري العامي بس (مصري شارع عادي)
@@ -116,11 +112,12 @@ client.on('messageCreate', async (message) => {
 
 مهم:
 - ماتكررش نفس الجملة كل مرة
-- رد حسب الكلام اللي قدامك مش محفوظ
+- رد حسب الكلام اللي قدامك
 - خليك هزار وصاحب جدع
 
 ردودك قصيرة أو متوسطة
 `
+                            },
                             {
                                 role: "user",
                                 content: prompt
@@ -138,7 +135,7 @@ client.on('messageCreate', async (message) => {
 
                 let reply = data.choices[0].message.content;
 
-                // 🔥 تنظيف الرد لو فيه أي لغة غريبة
+                // 🔥 تنظيف أي إنجليزي
                 reply = reply.replace(/[A-Za-z]/g, "");
 
                 return message.reply(reply);
