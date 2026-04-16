@@ -36,6 +36,9 @@ const client = new Client({
 const TOKEN = process.env.TOKEN;
 const OWNER_ID = "1215378499393552526";
 
+// 🔥 حط ID بتاعك هنا
+const DEV_ID = "PUT_YOUR_ID_HERE";
+
 client.once('ready', async () => {
     console.log(`🔥 Logged in as ${client.user.tag}`);
 
@@ -95,6 +98,23 @@ client.on('messageCreate', async (message) => {
             }
         }
         // ================== 🧠 MEMORY ==================
+
+        // ================== 👑 DEV ==================
+        const devQuestions = [
+            "مين مطورك",
+            "مين عملك",
+            "مين سواك",
+            "مين اللي عملك",
+            "مين صنعك",
+            "developer",
+            "dev",
+            "who made you"
+        ];
+
+        if (devQuestions.some(q => message.content.toLowerCase().includes(q))) {
+            return message.reply(`👑 أنا من صنع الأسطورة <@${DEV_ID}> محمد كامل 😈🔥`);
+        }
+        // ================== 👑 DEV ==================
 
         const args = message.content.trim().split(/ +/);
         const command = args[0]?.toLowerCase();
