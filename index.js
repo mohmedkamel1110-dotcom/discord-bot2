@@ -5,11 +5,8 @@ const { startMessages } = require('./messages');
 const { handleXP, getLevel } = require('./levels');
 const { getDB, connectDB } = require('./database');
 
-// 🔥 AI
-const OpenAI = require("openai");
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_KEY
-});
+// 🔥 AI (FREE - GROQ)
+const fetch = require("node-fetch");
 
 // 🔥 ticket system
 const { handleTicketInteraction, sendPanel } = require("./ticket");
@@ -73,7 +70,6 @@ client.on('messageCreate', async (message) => {
                 .replace(new RegExp(`<@!?${client.user.id}>`, "g"), "")
                 .trim();
 
-            // لو المستخدم عمل reply
             if (!prompt && message.reference) {
                 try {
                     const replied = await message.channel.messages.fetch(message.reference.messageId);
@@ -84,26 +80,35 @@ client.on('messageCreate', async (message) => {
             if (!prompt) prompt = "اتكلم معاه عادي";
 
             try {
-                const response = await openai.chat.completions.create({
-                    model: "gpt-4o-mini",
-                    messages: [
-                        {
-                            role: "system",
-                            content: `
-انت Devil Bot 😈
-بتتكلم بالمصري
-أسلوبك هزار وصحوبية
-ردودك طويلة شوية وممتعة
-`
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ]
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama3-70b-8192",
+                        messages: [
+                            {
+                                role: "system",
+                                content: "انت Devil Bot 😈 بتتكلم بالمصري بأسلوب هزار وصحوبية وردودك طويلة وممتعة"
+                            },
+                            {
+                                role: "user",
+                                content: prompt
+                            }
+                        ]
+                    })
                 });
 
-                const reply = response.choices[0].message.content;
+                const data = await res.json();
+
+                if (!data.choices) {
+                    console.log(data);
+                    return message.reply("❌ حصل مشكلة في AI");
+                }
+
+                const reply = data.choices[0].message.content;
 
                 return message.reply(reply);
 
