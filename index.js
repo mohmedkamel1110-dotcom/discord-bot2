@@ -87,7 +87,7 @@ client.on('messageCreate', async (message) => {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: "openchat/openchat-7b", // 🔥 موديل مظبوط
+                        model: "meta-llama/llama-3-8b-instruct", // 🔥 موديل مظبوط
                         max_tokens: 150, // 🔥 يمنع الهبد الطويل
                         messages: [
                             {
