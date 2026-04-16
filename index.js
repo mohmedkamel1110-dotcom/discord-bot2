@@ -87,18 +87,18 @@ client.on('messageCreate', async (message) => {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: "llama3-8b-8192",
-                        messages: [
-                            {
-                                role: "system",
-                                content: "انت Devil Bot 😈 بتتكلم بالمصري بأسلوب هزار وصحوبية وردودك طويلة وممتعة"
-                            },
-                            {
-                                role: "user",
-                                content: prompt
-                            }
-                        ]
-                    })
+    model: "llama-3.1-8b-instant",
+    messages: [
+        {
+            role: "system",
+            content: "انت Devil Bot 😈 بتتكلم بالمصري بأسلوب هزار وصحوبية وردودك طويلة وممتعة"
+        },
+        {
+            role: "user",
+            content: prompt
+        }
+    ]
+})
                 });
 
                 const data = await res.json();
