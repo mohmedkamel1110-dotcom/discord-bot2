@@ -87,13 +87,16 @@ client.on('messageCreate', async (message) => {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: "meta-llama/llama-3-8b-instruct", // 🔥 موديل مظبوط
-                        max_tokens: 150, // 🔥 يمنع الهبد الطويل
-temperature: 0.7
-                        messages: [
-                            {
-  role: "system",
-  content: `
+    model: "meta-llama/llama-3-8b-instruct",
+    temperature: 0.7,
+    messages: [
+        {
+            role: "system",
+            content: `...`
+        },
+        {
+            role: "user",
+            content: `
 انت Devil Bot 😈
 
 اتكلم بالمصري العامي بس (مصري شارع عادي)
