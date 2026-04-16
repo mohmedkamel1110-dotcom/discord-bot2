@@ -99,19 +99,22 @@ client.on('messageCreate', async (message) => {
         }
         // ================== 🧠 MEMORY ==================
 
-        // ================== 👑 DEV ==================
-        const devQuestions = [
+        const content = message.content.toLowerCase();
+
+        // ================== 👑 DEV (FIXED) ==================
+        const devKeywords = [
             "مين مطورك",
             "مين عملك",
             "مين سواك",
             "مين اللي عملك",
             "مين صنعك",
+            "مين مبرمجك",
             "developer",
             "dev",
             "who made you"
         ];
 
-        if (devQuestions.some(q => message.content.toLowerCase().includes(q))) {
+        if (devKeywords.some(word => content.includes(word))) {
             return message.reply(`👑 أنا من صنع الأسطورة <@${DEV_ID}> محمد كامل 😈🔥`);
         }
         // ================== 👑 DEV ==================
