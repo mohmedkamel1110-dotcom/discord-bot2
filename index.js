@@ -5,6 +5,12 @@ const { startMessages } = require('./messages');
 const { handleXP, getLevel } = require('./levels');
 const { getDB, connectDB } = require('./database');
 
+// 🔥 AI
+const OpenAI = require("openai");
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_KEY
+});
+
 // 🔥 ticket system
 const { handleTicketInteraction, sendPanel } = require("./ticket");
 
@@ -49,6 +55,44 @@ client.on('messageCreate', async (message) => {
     try {
         if (!message || message.author.bot) return;
 
+        // ================== 🤖 AI ==================
+        if (message.mentions.has(client.user) || message.reference) {
+
+            let prompt = message.content
+                .replace(`<@${client.user.id}>`, "")
+                .trim();
+
+            if (!prompt) prompt = "رد عليه بشكل طبيعي";
+
+            try {
+                const response = await openai.chat.completions.create({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        {
+                            role: "system",
+                            content: `
+انت بوت ديسكورد اسمه Devil Bot 😈
+بتتكلم بالمصري
+بترد بطريقة طبيعية جدًا زي البشر
+ردودك تبقى طويلة وممتعة
+`
+                        },
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ]
+                });
+
+                const reply = response.choices[0].message.content;
+
+                return message.reply(reply);
+
+            } catch (err) {
+                console.error("❌ AI Error:", err);
+            }
+        }
+
         const db = getDB();
         if (!db) return;
 
@@ -72,7 +116,6 @@ client.on('messageCreate', async (message) => {
             return await getLevel(message);
         }
 
-        // 🔥🔥🔥 BEST (تم التعديل هنا فقط)
         if (command === "!best") {
 
             const topUsers = await users.find().sort({ level: -1, xp: -1 }).limit(5).toArray();
@@ -89,7 +132,6 @@ client.on('messageCreate', async (message) => {
                 desc += `${medal} #${i + 1} - <@${u.userId}> (Level ${u.level})\n`;
             }
 
-            // 👑 Top 1
             let topUser = null;
             let avatar = null;
             let title = "🏆 Best 5 Players";
@@ -97,13 +139,8 @@ client.on('messageCreate', async (message) => {
             try {
                 topUser = await client.users.fetch(topUsers[0].userId);
                 avatar = topUser.displayAvatarURL({ dynamic: true, size: 1024 });
-
-                // 🔥 الاسم الكبير فوق
                 title = `👑 ${topUser.username} | Top Player`;
-
-            } catch (err) {
-                console.log("❌ Error fetching top user");
-            }
+            } catch {}
 
             const embed = new EmbedBuilder()
                 .setColor("#FFD700")
@@ -111,10 +148,7 @@ client.on('messageCreate', async (message) => {
                 .setDescription(desc)
                 .setFooter({ text: "Devil Bot 😈" });
 
-            // 🖼️ صورة جنب
             if (avatar) embed.setThumbnail(avatar);
-
-            // 🖼️ صورة كبيرة تحت
             if (avatar) embed.setImage(avatar);
 
             return message.reply({ embeds: [embed] });
@@ -222,7 +256,6 @@ client.on('messageCreate', async (message) => {
             return message.channel.send(`💀 Deleted ${amount}`);
         }
 
-        // ================== 👑 مستوي ==================
         if (command === "!مستوي") {
 
             if (!mentionedUser) return message.reply("❌ منشن الشخص");
