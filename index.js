@@ -70,7 +70,8 @@ client.on('messageCreate', async (message) => {
                 userId: message.author.id,
                 xp: 0,
                 level: 1,
-                memory: {}
+                memory: {},
+                toxic: false
             };
             await users.insertOne(user);
         }
@@ -101,7 +102,7 @@ client.on('messageCreate', async (message) => {
 
         const content = message.content.toLowerCase();
 
-        // ================== 👑 DEV (FIXED) ==================
+        // ================== 👑 DEV ==================
         const devKeywords = [
             "مين مطورك",
             "مين عملك",
@@ -117,6 +118,24 @@ client.on('messageCreate', async (message) => {
         if (devKeywords.some(word => content.includes(word))) {
             return message.reply(`👑 أنا من صنع الأسطورة <@${DEV_ID}> محمد كامل 😈🔥`);
         }
+
+        // ================== 💀 TOXIC COMMAND ==================
+        if (content === "!toxic") {
+            const userData = await users.findOne({ userId: message.author.id });
+            const newState = !userData?.toxic;
+
+            await users.updateOne(
+                { userId: message.author.id },
+                { $set: { toxic: newState } }
+            );
+
+            return message.reply(
+                newState
+                    ? "💀 التوكسيك اشتغل... استحمل بقى 😈"
+                    : "😇 خلاص رجعنا محترمين"
+            );
+        }
+
         // ================== 👑 DEV ==================
 
         const args = message.content.trim().split(/ +/);
@@ -141,6 +160,7 @@ client.on('messageCreate', async (message) => {
 
             const userData = await users.findOne({ userId: message.author.id });
             const userName = userData?.memory?.name || "يا عم";
+            const isToxic = userData?.toxic;
 
             let prompt = message.content
                 .replace(new RegExp(`<@!?${client.user.id}>`, "g"), "")
@@ -173,10 +193,21 @@ client.on('messageCreate', async (message) => {
 
 اسم الشخص: ${userName}
 
-لو تعرف اسمه استخدمه
+${isToxic ? `
+انت في وضع توكسيك 😈
 
+اتكلم:
+- بتريقة خفيفة
+- هزار تقيل
+- روشنة
+- من غير شتيمة قوية
+
+` : `
 اتكلم بالمصري بس
 خليك روش وطبيعي
+`}
+
+لو تعرف اسمه استخدمه
 `
                             },
                             {
