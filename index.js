@@ -133,7 +133,7 @@ client.on('messageCreate', async (message) => {
 
                 if (!data.choices) {
                     console.log("❌ OPENROUTER ERROR:", data);
-                    return message.reply("❌ حصل مشكلة في AI");
+                    return message.reply(`❌ AI Error: ${JSON.stringify(data)}`);
                 }
 
                 let reply = data.choices[0].message.content;
