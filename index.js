@@ -5,7 +5,7 @@ const { startMessages } = require('./messages');
 const { handleXP, getLevel } = require('./levels');
 const { getDB, connectDB } = require('./database');
 
-// 🔥 AI (FREE - GROQ)
+// 🔥 AI (OPENROUTER)
 const fetch = require("node-fetch");
 
 // 🔥 ticket system
@@ -80,47 +80,47 @@ client.on('messageCreate', async (message) => {
             if (!prompt) prompt = "اتكلم معاه عادي";
 
             try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
-                        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+                        "Authorization": `Bearer ${process.env.OPENROUTER_KEY}`,
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-    model: "llama-3.1-8b-instant",
-    messages: [
-        {
-            role: "system",
-            content: `
+                        model: "mistralai/mixtral-8x7b-instruct",
+                        messages: [
+                            {
+                                role: "system",
+                                content: `
 انت Devil Bot 😈
 
-اتكلم بالمصري العامي البسيط جدًا (زي الشباب في الديسكورد)
-بلاش أي فصحى أو كلمات غريبة
+اتكلم بالمصري العادي جدًا زي الشباب
+بلاش فصحى خالص
 
-خليك روش وصاحب جدع
-ردودك تبقى طبيعية جدًا وقصيرة إلى متوسطة
+خليك روش ودمك خفيف
+ردودك تبقى طبيعية ومفهومة وقصيرة
 
 مثال:
 - "عامل ايه يا عم 😂"
-- "ياااه فينك من زمان"
-- "انت بتقول ايه بس 😂"
+- "ايه الاخبار"
+- "فينك مختفي ليه 😏"
 
-ماتقولش كلام غريب أو غير مفهوم
+ماتقولش كلام غريب أو معقد
 `
-        },
-        {
-            role: "user",
-            content: prompt
-        }
-    ]
-})
+                            },
+                            {
+                                role: "user",
+                                content: prompt
+                            }
+                        ]
+                    })
                 });
 
                 const data = await res.json();
 
                 if (!data.choices) {
-                    console.log("❌ GROQ ERROR:", data);
-                    return message.reply(`❌ AI Error: ${JSON.stringify(data)}`);
+                    console.log("❌ OPENROUTER ERROR:", data);
+                    return message.reply("❌ حصل مشكلة في AI");
                 }
 
                 const reply = data.choices[0].message.content;
@@ -129,7 +129,7 @@ client.on('messageCreate', async (message) => {
 
             } catch (err) {
                 console.error("❌ AI Error:", err);
-                return message.reply(`❌ AI Error: ${err.message}`);
+                return message.reply("❌ حصل مشكلة في AI");
             }
         }
 
