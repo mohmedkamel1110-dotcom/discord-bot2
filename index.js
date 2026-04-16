@@ -59,6 +59,43 @@ client.on('messageCreate', async (message) => {
 
         await handleXP(message).catch(() => {});
 
+        // ================== 🧠 MEMORY ==================
+        let user = await users.findOne({ userId: message.author.id });
+
+        if (!user) {
+            user = {
+                userId: message.author.id,
+                xp: 0,
+                level: 1,
+                memory: {}
+            };
+            await users.insertOne(user);
+        }
+
+        await users.updateOne(
+            { userId: message.author.id },
+            {
+                $set: {
+                    "memory.lastMessage": message.content
+                }
+            }
+        );
+
+        // 🔥 حفظ الاسم
+        if (message.content.includes("اسمي")) {
+            const name = message.content.split("اسمي")[1]?.trim();
+
+            if (name) {
+                await users.updateOne(
+                    { userId: message.author.id },
+                    { $set: { "memory.name": name } }
+                );
+
+                return message.reply(`تمام يا ${name} هفتكرك 😏`);
+            }
+        }
+        // ================== 🧠 MEMORY ==================
+
         const args = message.content.trim().split(/ +/);
         const command = args[0]?.toLowerCase();
         const mentionedUser = message.mentions.users.first();
@@ -78,6 +115,9 @@ client.on('messageCreate', async (message) => {
         }
 
         if (isMention || isReplyToBot) {
+
+            const userData = await users.findOne({ userId: message.author.id });
+            const userName = userData?.memory?.name || "يا عم";
 
             let prompt = message.content
                 .replace(new RegExp(`<@!?${client.user.id}>`, "g"), "")
@@ -108,24 +148,17 @@ client.on('messageCreate', async (message) => {
                                 content: `
 انت شاب مصري بتتكلم طبيعي جدًا زي صحابك
 
-ممنوع:
-- تكرر نفس الجملة
-- تستخدم كلام محفوظ
+اسم الشخص: ${userName}
+
+لو تعرف اسمه استخدمه
 
 اتكلم بالمصري بس
-
-رد حسب الكلام اللي قدامك
-خليك طبيعي وخفيف دم
+خليك روش وطبيعي
 `
                             },
                             {
                                 role: "user",
-                                content: `
-الرسالة:
-"${prompt}"
-
-رد عليها بالمصري
-`
+                                content: `"${prompt}"`
                             }
                         ]
                     })
@@ -135,12 +168,11 @@ client.on('messageCreate', async (message) => {
 
                 if (!data.choices) {
                     console.log("❌ OPENROUTER ERROR:", data);
-                    return message.reply(`❌ AI Error: ${JSON.stringify(data)}`);
+                    return message.reply("❌ AI Error");
                 }
 
                 let reply = data.choices[0].message.content;
 
-                // 🔥 تنظيف أي إنجليزي
                 reply = reply.replace(/[A-Za-z]/g, "");
 
                 return message.reply(reply);
