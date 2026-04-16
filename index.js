@@ -104,8 +104,8 @@ client.on('messageCreate', async (message) => {
                 const data = await res.json();
 
                 if (!data.choices) {
-                    console.log(data);
-                    return message.reply("❌ حصل مشكلة في AI");
+                    console.log("❌ GROQ ERROR:", data);
+                    return message.reply(`❌ AI Error: ${JSON.stringify(data)}`);
                 }
 
                 const reply = data.choices[0].message.content;
@@ -114,7 +114,7 @@ client.on('messageCreate', async (message) => {
 
             } catch (err) {
                 console.error("❌ AI Error:", err);
-                return message.reply("❌ حصل مشكلة في AI");
+                return message.reply(`❌ AI Error: ${err.message}`);
             }
         }
 
