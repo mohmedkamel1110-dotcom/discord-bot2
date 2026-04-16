@@ -87,40 +87,37 @@ client.on('messageCreate', async (message) => {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: "mistralai/mixtral-8x7b-instruct",
+                        model: "openchat/openchat-7b", // 🔥 موديل مظبوط
+                        max_tokens: 150, // 🔥 يمنع الهبد الطويل
                         messages: [
                             {
                                 role: "system",
                                 content: `
 انت Devil Bot 😈
 
-اتكلم بالمصري الشعبي العادي بتاع الشباب في الديسكورد
+اتكلم بالمصري العامي بس
 
-ممنوع تستخدم:
-- الفصحى
-- الإنجليزي
-- أي لغة تانية
+ممنوع:
+- أي إنجليزي
+- أي إسباني
+- أي فصحى
 
-اتكلم كده:
+اتكلم زي الشباب:
 - "عامل ايه يا عم 😂"
-- "ايه الأخبار يا نجم"
+- "ايه الأخبار"
 - "فينك مختفي ليه 😏"
 
 خليك:
+- طبيعي
 - خفيف دم
 - صاحب جدع
-- طبيعي جدًا
 
 ماتقولش:
 - "كيف حالك"
 - "أنا هنا لمساعدتك"
 - أي كلام رسمي
 
-ردودك:
-قصيرة أو متوسطة
-واضحة ومفهومة
-مفيهاش فلسفة
-
+ردودك قصيرة ومفهومة
 اتكلم كأنك واحد صاحب مش AI
 `
                             },
@@ -139,7 +136,10 @@ client.on('messageCreate', async (message) => {
                     return message.reply("❌ حصل مشكلة في AI");
                 }
 
-                const reply = data.choices[0].message.content;
+                let reply = data.choices[0].message.content;
+
+                // 🔥 تنظيف الرد لو فيه أي لغة غريبة
+                reply = reply.replace(/[A-Za-z]/g, "");
 
                 return message.reply(reply);
 
