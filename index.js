@@ -37,7 +37,7 @@ const TOKEN = process.env.TOKEN;
 const OWNER_ID = "1215378499393552526";
 
 // 🔥 حط ID بتاعك هنا
-const DEV_ID = "const DEV_ID = "123456789012345678";";
+const DEV_ID = "1215378499393552526";
 
 client.once('ready', async () => {
     console.log(`🔥 Logged in as ${client.user.tag}`);
