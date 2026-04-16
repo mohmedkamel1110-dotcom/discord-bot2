@@ -55,14 +55,33 @@ client.on('messageCreate', async (message) => {
     try {
         if (!message || message.author.bot) return;
 
+        const db = getDB();
+        if (!db) return;
+
+        const users = db.collection("users");
+
+        await handleXP(message).catch(() => {});
+
+        const args = message.content.trim().split(/ +/);
+        const command = args[0]?.toLowerCase();
+        const mentionedUser = message.mentions.users.first();
+
         // ================== 🤖 AI ==================
         if (message.mentions.has(client.user) || message.reference) {
 
             let prompt = message.content
-                .replace(`<@${client.user.id}>`, "")
+                .replace(new RegExp(`<@!?${client.user.id}>`, "g"), "")
                 .trim();
 
-            if (!prompt) prompt = "رد عليه بشكل طبيعي";
+            // لو المستخدم عمل reply
+            if (!prompt && message.reference) {
+                try {
+                    const replied = await message.channel.messages.fetch(message.reference.messageId);
+                    prompt = replied.content;
+                } catch {}
+            }
+
+            if (!prompt) prompt = "اتكلم معاه عادي";
 
             try {
                 const response = await openai.chat.completions.create({
@@ -71,10 +90,10 @@ client.on('messageCreate', async (message) => {
                         {
                             role: "system",
                             content: `
-انت بوت ديسكورد اسمه Devil Bot 😈
+انت Devil Bot 😈
 بتتكلم بالمصري
-بترد بطريقة طبيعية جدًا زي البشر
-ردودك تبقى طويلة وممتعة
+أسلوبك هزار وصحوبية
+ردودك طويلة شوية وممتعة
 `
                         },
                         {
@@ -90,19 +109,9 @@ client.on('messageCreate', async (message) => {
 
             } catch (err) {
                 console.error("❌ AI Error:", err);
+                return message.reply("❌ حصل مشكلة في AI");
             }
         }
-
-        const db = getDB();
-        if (!db) return;
-
-        const users = db.collection("users");
-
-        await handleXP(message).catch(() => {});
-
-        const args = message.content.trim().split(/ +/);
-        const command = args[0]?.toLowerCase();
-        const mentionedUser = message.mentions.users.first();
 
         if (!command) return;
 
