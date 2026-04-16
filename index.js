@@ -89,6 +89,7 @@ client.on('messageCreate', async (message) => {
                     body: JSON.stringify({
                         model: "meta-llama/llama-3-8b-instruct", // 🔥 موديل مظبوط
                         max_tokens: 150, // 🔥 يمنع الهبد الطويل
+temperature: 0.7
                         messages: [
                             {
   role: "system",
