@@ -64,7 +64,20 @@ client.on('messageCreate', async (message) => {
         const mentionedUser = message.mentions.users.first();
 
         // ================== 🤖 AI ==================
-        if (message.mentions.has(client.user) || message.reference) {
+
+        const isMention = message.mentions.has(client.user);
+
+        let isReplyToBot = false;
+        if (message.reference) {
+            try {
+                const repliedMsg = await message.channel.messages.fetch(message.reference.messageId);
+                if (repliedMsg.author.id === client.user.id) {
+                    isReplyToBot = true;
+                }
+            } catch {}
+        }
+
+        if (isMention || isReplyToBot) {
 
             let prompt = message.content
                 .replace(new RegExp(`<@!?${client.user.id}>`, "g"), "")
@@ -96,23 +109,13 @@ client.on('messageCreate', async (message) => {
 انت شاب مصري بتتكلم طبيعي جدًا زي صحابك
 
 ممنوع:
-- تكرر نفس الجملة مرتين
-- تبدأ كل رد بنفس الشكل
-- تستخدم جمل محفوظة
+- تكرر نفس الجملة
+- تستخدم كلام محفوظ
 
-اتكلم بالمصري العادي بس
+اتكلم بالمصري بس
 
-رد على حسب الكلام:
-لو حد قال حاجة → رد عليها مباشرة
-ماتعيدش كلام محفوظ زي "تمام يا عم انت ايه اخبارك"
-
-خليك:
-- طبيعي
-- بسيط
-- مش متكرر
-- خفيف دم
-
-كل رد يكون مختلف عن اللي قبله
+رد حسب الكلام اللي قدامك
+خليك طبيعي وخفيف دم
 `
                             },
                             {
@@ -121,7 +124,7 @@ client.on('messageCreate', async (message) => {
 الرسالة:
 "${prompt}"
 
-رد عليها بالمصري بشكل طبيعي
+رد عليها بالمصري
 `
                             }
                         ]
