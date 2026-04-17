@@ -85,7 +85,6 @@ client.on('messageCreate', async (message) => {
             }
         );
 
-        // 🔥 حفظ الاسم
         if (message.content.includes("اسمي")) {
             const name = message.content.split("اسمي")[1]?.trim();
 
@@ -102,21 +101,9 @@ client.on('messageCreate', async (message) => {
 
         const content = message.content.toLowerCase();
 
-        // ================== 👑 DEV ==================
-        const devKeywords = [
-            "مين مطورك",
-            "مين عملك",
-            "مين سواك",
-            "مين اللي عملك",
-            "مين صنعك",
-            "مين مبرمجك",
-            "developer",
-            "dev",
-            "who made you"
-        ];
-
-        if (devKeywords.some(word => content.includes(word))) {
-            return message.reply(`👑 أنا من صنع الأسطورة <@${DEV_ID}> محمد كامل 😈🔥`);
+        // ================== 👑 DEV SMART ==================
+        if (content.includes("مطور")) {
+            return message.reply(`👑 أنا المطور بتاعي الأسطورة <@${DEV_ID}> محمد كامل 😈🔥`);
         }
 
         // ================== 💀 TOXIC COMMAND ==================
@@ -135,7 +122,6 @@ client.on('messageCreate', async (message) => {
                     : "😇 خلاص رجعنا محترمين"
             );
         }
-
         // ================== 👑 DEV ==================
 
         const args = message.content.trim().split(/ +/);
@@ -201,7 +187,6 @@ ${isToxic ? `
 - هزار تقيل
 - روشنة
 - من غير شتيمة قوية
-
 ` : `
 اتكلم بالمصري بس
 خليك روش وطبيعي
