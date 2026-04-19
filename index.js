@@ -5,9 +5,6 @@ const { startMessages } = require('./messages');
 const { handleXP, getLevel } = require('./levels');
 const { getDB, connectDB } = require('./database');
 
-// 🔥 AI (OPENROUTER)
-const fetch = require("node-fetch");
-
 // 🔥 ticket system
 const { handleTicketInteraction, sendPanel } = require("./ticket");
 
@@ -36,9 +33,6 @@ const client = new Client({
 const TOKEN = process.env.TOKEN;
 const OWNER_ID = "1215378499393552526";
 
-// 🔥 حط ID بتاعك هنا
-const DEV_ID = "1215378499393552526";
-
 client.once('ready', async () => {
     console.log(`🔥 Logged in as ${client.user.tag}`);
 
@@ -62,165 +56,9 @@ client.on('messageCreate', async (message) => {
 
         await handleXP(message).catch(() => {});
 
-        // ================== 🧠 MEMORY ==================
-        let user = await users.findOne({ userId: message.author.id });
-
-        if (!user) {
-            user = {
-                userId: message.author.id,
-                xp: 0,
-                level: 1,
-                memory: {},
-                toxic: false
-            };
-            await users.insertOne(user);
-        }
-
-        await users.updateOne(
-            { userId: message.author.id },
-            {
-                $set: {
-                    "memory.lastMessage": message.content
-                }
-            }
-        );
-
-        if (message.content.includes("اسمي")) {
-            const name = message.content.split("اسمي")[1]?.trim();
-
-            if (name) {
-                await users.updateOne(
-                    { userId: message.author.id },
-                    { $set: { "memory.name": name } }
-                );
-
-                return message.reply(`تمام يا ${name} هفتكرك 😏`);
-            }
-        }
-        // ================== 🧠 MEMORY ==================
-
-        const content = message.content.toLowerCase();
-
-        // ================== 👑 DEV SMART ==================
-        if (content.includes("مطور")) {
-            return message.reply(`👑 أنا المطور بتاعي الأسطورة <@${DEV_ID}> محمد كامل 😈🔥`);
-        }
-
-        // ================== 💀 TOXIC COMMAND ==================
-        if (content === "!toxic") {
-            const userData = await users.findOne({ userId: message.author.id });
-            const newState = !userData?.toxic;
-
-            await users.updateOne(
-                { userId: message.author.id },
-                { $set: { toxic: newState } }
-            );
-
-            return message.reply(
-                newState
-                    ? "💀 التوكسيك اشتغل... استحمل بقى 😈"
-                    : "😇 خلاص رجعنا محترمين"
-            );
-        }
-        // ================== 👑 DEV ==================
-
         const args = message.content.trim().split(/ +/);
         const command = args[0]?.toLowerCase();
         const mentionedUser = message.mentions.users.first();
-
-        // ================== 🤖 AI ==================
-
-        const isMention = message.mentions.has(client.user);
-
-        let isReplyToBot = false;
-        if (message.reference) {
-            try {
-                const repliedMsg = await message.channel.messages.fetch(message.reference.messageId);
-                if (repliedMsg.author.id === client.user.id) {
-                    isReplyToBot = true;
-                }
-            } catch {}
-        }
-
-        if (isMention || isReplyToBot) {
-
-            const userData = await users.findOne({ userId: message.author.id });
-            const userName = userData?.memory?.name || "يا عم";
-            const isToxic = userData?.toxic;
-
-            let prompt = message.content
-                .replace(new RegExp(`<@!?${client.user.id}>`, "g"), "")
-                .trim();
-
-            if (!prompt && message.reference) {
-                try {
-                    const replied = await message.channel.messages.fetch(message.reference.messageId);
-                    prompt = replied.content;
-                } catch {}
-            }
-
-            if (!prompt) prompt = "اتكلم معاه عادي";
-
-            try {
-                const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${process.env.OPENROUTER_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model: "openai/gpt-3.5-turbo",
-                        temperature: 0.9,
-                        messages: [
-                            {
-                                role: "system",
-                                content: `
-انت شاب مصري بتتكلم طبيعي جدًا زي صحابك
-
-اسم الشخص: ${userName}
-
-${isToxic ? `
-انت في وضع توكسيك 😈
-
-اتكلم:
-- بتريقة خفيفة
-- هزار تقيل
-- روشنة
-- من غير شتيمة قوية
-` : `
-اتكلم بالمصري بس
-خليك روش وطبيعي
-`}
-
-لو تعرف اسمه استخدمه
-`
-                            },
-                            {
-                                role: "user",
-                                content: `"${prompt}"`
-                            }
-                        ]
-                    })
-                });
-
-                const data = await res.json();
-
-                if (!data.choices) {
-                    console.log("❌ OPENROUTER ERROR:", data);
-                    return message.reply("❌ AI Error");
-                }
-
-                let reply = data.choices[0].message.content;
-
-                reply = reply.replace(/[A-Za-z]/g, "");
-
-                return message.reply(reply);
-
-            } catch (err) {
-                console.error("❌ AI Error:", err);
-                return message.reply("❌ حصل مشكلة في AI");
-            }
-        }
 
         if (!command) return;
 
@@ -234,6 +72,7 @@ ${isToxic ? `
             return await getLevel(message);
         }
 
+        // 🔥🔥🔥 BEST (تم التعديل هنا فقط)
         if (command === "!best") {
 
             const topUsers = await users.find().sort({ level: -1, xp: -1 }).limit(5).toArray();
@@ -250,6 +89,7 @@ ${isToxic ? `
                 desc += `${medal} #${i + 1} - <@${u.userId}> (Level ${u.level})\n`;
             }
 
+            // 👑 Top 1
             let topUser = null;
             let avatar = null;
             let title = "🏆 Best 5 Players";
@@ -257,8 +97,13 @@ ${isToxic ? `
             try {
                 topUser = await client.users.fetch(topUsers[0].userId);
                 avatar = topUser.displayAvatarURL({ dynamic: true, size: 1024 });
+
+                // 🔥 الاسم الكبير فوق
                 title = `👑 ${topUser.username} | Top Player`;
-            } catch {}
+
+            } catch (err) {
+                console.log("❌ Error fetching top user");
+            }
 
             const embed = new EmbedBuilder()
                 .setColor("#FFD700")
@@ -266,7 +111,10 @@ ${isToxic ? `
                 .setDescription(desc)
                 .setFooter({ text: "Devil Bot 😈" });
 
+            // 🖼️ صورة جنب
             if (avatar) embed.setThumbnail(avatar);
+
+            // 🖼️ صورة كبيرة تحت
             if (avatar) embed.setImage(avatar);
 
             return message.reply({ embeds: [embed] });
@@ -374,6 +222,7 @@ ${isToxic ? `
             return message.channel.send(`💀 Deleted ${amount}`);
         }
 
+        // ================== 👑 مستوي ==================
         if (command === "!مستوي") {
 
             if (!mentionedUser) return message.reply("❌ منشن الشخص");
